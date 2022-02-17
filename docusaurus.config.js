@@ -8,13 +8,15 @@ const darkCodeTheme = require("prism-react-renderer/themes/dracula");
 const config = {
   title: "Resilient React",
   tagline: "Reactive, Predictable, Maintainable",
-  url: "https://your-docusaurus-test-site.com",
-  baseUrl: "/",
+  url: "https://nervestaple.github.io",
+  baseUrl: "/resilient-react/",
   onBrokenLinks: "throw",
   onBrokenMarkdownLinks: "warn",
   favicon: "img/favicon-32x32.png",
-  organizationName: "facebook", // Usually your GitHub org/user name.
-  projectName: "docusaurus", // Usually your repo name.
+  organizationName: "nervestaple", // Usually your GitHub org/user name.
+  projectName: "resilient-react", // Usually your repo name.
+  trailingSlash: true,
+  deploymentBranch: "gh-pages",
 
   themes: ["@docusaurus/theme-live-codeblock"],
 
@@ -26,8 +28,7 @@ const config = {
         docs: {
           sidebarPath: require.resolve("./sidebars.js"),
           // Please change this to your repo.
-          editUrl:
-            "https://github.com/facebook/docusaurus/tree/main/packages/create-docusaurus/templates/shared/",
+          editUrl: "https://github.com/nervestaple/resilient-react/tree/main/",
         },
         theme: {
           customCss: require.resolve("./src/css/custom.css"),
@@ -56,7 +57,7 @@ const config = {
       },
       footer: {
         style: "dark",
-        copyright: `Copyright © ${new Date().getFullYear()} My Project, Inc. Built with Docusaurus.`,
+        copyright: `Built with Docusaurus.`,
       },
       prism: {
         theme: lightCodeTheme,
