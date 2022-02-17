@@ -1,0 +1,207 @@
+---
+sidebar_position: 2
+---
+
+# Single Source of Truth
+
+If an app contains data, that data should be _minimally represented_.
+
+## Minimally represented?
+
+> "Take all the data needed to render this application.
+> What is the least amount of state we can use to represent this data?"
+
+Note -- this doesn't necessarily mean we need to just mindlessly combine state fields into compound objects (though often that's the right choice).
+Primarily, the goal is to identify and eliminate situations where data stored in state essentially duplicates data stored in other state, even if in a transformed form.
+
+Consider this example:
+
+```jsx live
+function TextTransformer() {
+  const [text, setText] = useState("Test");
+  const [capitalizedText, setCapitalizedText] = useState(text.toUpperCase());
+  const [isCaps, setIsCaps] = useState(false);
+
+  return (
+    <div>
+      <input
+        value={text}
+        onChange={(e) => {
+          setText(e.target.value);
+          setCapitalizedText(e.target.value.toUpperCase());
+        }}
+      />{" "}
+      Capitalize?{" "}
+      <input
+        type="checkbox"
+        onChange={() => setIsCaps((c) => !c)}
+        checked={isCaps}
+      />
+      <hr />
+      <h3>{isCaps ? capitalizedText : text}</h3>
+    </div>
+  );
+}
+render(<TextTransformer />);
+```
+
+The issue with this example (duplicated representations of data across multiple state fields) might be obvious --
+but even then, it seems relatively harmless.
+After all -- it works! What's the big deal?
+
+## "The Bug"
+
+Unfortunately, the decision made to represent the app's state in this way is insidious,
+and its implications might not become apparent until later on in development.
+
+```jsx live
+function TextTransformer() {
+  const [text, setText] = useState("Test");
+  const [capitalizedText, setCapitalizedText] = useState(text.toUpperCase());
+  const [isCaps, setIsCaps] = useState(false);
+
+  return (
+    <div style={{ display: "flex", flexDirection: "column" }}>
+      <input
+        value={text}
+        onChange={(e) => {
+          setText(e.target.value);
+          setCapitalizedText(e.target.value.toUpperCase());
+        }}
+      />
+      <label>
+        Capitalize?{" "}
+        <input
+          type="checkbox"
+          onChange={() => setIsCaps((c) => !c)}
+          checked={isCaps}
+        />
+      </label>
+      <button onClick={() => setText("")}>Reset</button>
+      <hr />
+      <h3>{isCaps ? capitalizedText : text}</h3>
+    </div>
+  );
+}
+render(<TextTransformer />);
+```
+
+The bug is a bit contrived (forgetting to resetting `capitalizedText` in the reset button), but it represents a real threat to our code.
+Once data becomes duplicated in this way, it becomes much harder to keep track of all the ways we need to change it.
+
+## Looking at Two Fixes: Bad and Worse
+
+Let's put aside the best way to fix this issue. What are some common ways developers will choose to fix this?
+
+### BAD:
+
+```jsx
+<button
+  onClick={() => {
+    setText("");
+    setCapitalizedText("");
+  }}
+>
+  Reset
+</button>
+```
+
+This fixes the issue. The state is back in sync. But -- whenever this logic is modified or extended in the future,
+we still have to keep track and synchronize these two state fields.
+
+### WORSE:
+
+But, with long components and complex webs of state and business logic,
+it can feel easy to reach `useEffect` as a way to "cut through the BS":
+
+```jsx live
+function TextTransformer() {
+  const [text, setText] = useState("Test");
+  const [capitalizedText, setCapitalizedText] = useState(text.toUpperCase());
+  const [isCaps, setIsCaps] = useState(false);
+
+  useEffect(() => {
+    setCapitalizedText(text.toUpperCase());
+  }, [text]);
+
+  return (
+    <div style={{ display: "flex", flexDirection: "column" }}>
+      <input
+        value={text}
+        onChange={(e) => {
+          setText(e.target.value);
+          setCapitalizedText(e.target.value.toUpperCase());
+        }}
+      />
+      <label>
+        Capitalize?{" "}
+        <input
+          type="checkbox"
+          onChange={() => setIsCaps((c) => !c)}
+          checked={isCaps}
+        />
+      </label>
+      <button onClick={() => setText("")}>Reset</button>
+      <hr />
+      <h3>{isCaps ? capitalizedText : text}</h3>
+    </div>
+  );
+}
+render(<TextTransformer />);
+```
+
+This also fixes it, but at the cost of extra renders -- and, more importantly,
+adding unpredictable side-effects to changing state. In this example, it becomes much more difficult to reason about
+exactly what the state of `text` and `capitalizedText` is during each render. Now -- imagine 10 more state fields,
+each with their own `useEffects` synchronizing them to each other.
+
+### BEST!
+
+Hopefully I've demonstrated that 'working' code is not necessarily correct or advisable.
+The 'code smell' present in the previous example -- of `setState` inside `useEffect` --
+can lead us in the direction of optimal code.
+
+Let's ask, for real:
+
+> "Take all the data needed to render this application.
+> What is the least amount of state we can use to represent this data?"
+
+The main realization necessary is that `capitalizedText` is just duplicated state.
+In every render, it can be entirely derived from the current state of `text`.
+We don't need the extra state field, nor the effect required to synchronize it.
+
+```jsx live
+function TextTransformer() {
+  const [text, setText] = useState("Test");
+  const [isCaps, setIsCaps] = useState(false);
+
+  return (
+    <div style={{ display: "flex", flexDirection: "column" }}>
+      <input value={text} onChange={(e) => setText(e.target.value)} />
+      <label>
+        Capitalize?{" "}
+        <input
+          type="checkbox"
+          onChange={() => setIsCaps((c) => !c)}
+          checked={isCaps}
+        />
+      </label>
+      <button onClick={() => setText("")}>Reset</button>
+      <hr />
+      <h3>{isCaps ? capitalizedText : text}</h3>
+    </div>
+  );
+}
+render(<TextTransformer />);
+```
+
+Imagining growing this example into a much more complex app -- once `capitalizedText` is introduced, and our application becomes more dependent on it,
+it can be hard to imagine removing it. After all, all this code is "doing important stuff"!
+It becomes difficult to remove any single piece of it without breaking a complex web of state, effects, and synchronized state.
+
+<!--
+Ok, where does data come from?
+
+- Constants defined at compile-time
+- Fetched from APIs
+- User input -->

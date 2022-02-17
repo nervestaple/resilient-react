@@ -1,0 +1,109 @@
+---
+sidebar_position: 1
+---
+
+# Motivation
+
+## What is this guide?
+
+A set of practical guidelines for building React apps such that they're maximally reactive, predictable, and maintainable.
+
+## What are our problems?
+
+- Long, complicated components
+- Complex webs of state that interact in unpredictable ways
+- Difficulty in extending existing components -- it's hard to do our jobs!
+  - Small changes have the potential to create infinite loops
+  - Changing state fields often results in unpredictable chains of effects
+  - It's often difficult to see the 'right' way to do things, resulting in understandable 'hacks'
+- We're in a situation where, given any particular task, the easiest thing to do just adds to our existing set of problems!
+
+## Common Code Smells
+
+A "code smell" is a simple hint that strongly indicates at an issue in your code.
+I'll try to address _why_ these are code smells, and what alternatives to consider, later in this doc.
+
+1. useEffect being used to set state
+   1. this might be the most controversial (but also the most important), as code doing exactly this forms a large proportion of our Configurations code
+1. Ignored dependencies in hooks (most often useEffect)
+1. Refs used to get around ignored dependencies
+1. Comments referencing the lifecycle of the component, like: `// this should just be called once on mount!`
+
+## How can we improve?
+
+### Reactivity?
+
+It's in the name! Components should _react_ to changes in a predictable way.
+When the relevant data changes, what's rendered should change! (I know this sounds obvious!)
+
+We all know the mental model: React components are essentially just functions: `f(props) => rendered result`
+
+```jsx live
+function Sum({ a, b }) {
+  return (
+    <p>
+      Let's add! {a} + {b} = {a + b}
+    </p>
+  );
+}
+
+render(<Sum a={1} b={2} />);
+```
+
+State complicates this, but not by much.
+Props and state are still just values that can be used to render a result!
+
+```jsx live
+function getIntFromEvent(e) {
+  const num = parseInt(e.target.value);
+  return Number.isInteger(num) ? num : null;
+}
+
+function Sum() {
+  const [a, setA] = useState(1);
+  const [b, setB] = useState(2);
+  return (
+    <div>
+      <p>
+        Let's add! {a} + {b} = {a + b}
+      </p>
+      <div>
+        A: <input value={a} onChange={(e) => setA(getIntFromEvent(e))} />
+      </div>
+      <div>
+        B: <input value={b} onChange={(e) => setB(getIntFromEvent(e))} />
+      </div>
+    </div>
+  );
+}
+
+render(<Sum />);
+```
+
+### What about side effects?
+
+The primary purpose of useEffect is to manage 'side effects':
+
+- Fetching data from an API
+- Managing asynchronous tasks (`setTimeout`, `setInterval`)
+- Managing external objects with their own lifecycle (`IntersectionObserver`, external libraries)
+
+```jsx live
+function Timer() {
+  const [secondsPassed, setSecondsPassed] = useState(0);
+
+  useEffect(() => {
+    function tick() {
+      setSecondsPassed((s) => s + 1);
+    }
+    const timer = setInterval(tick, 1000);
+    return () => clearInterval(timer);
+  }, []);
+
+  return <h3>Seconds passed: {secondsPassed}</h3>;
+}
+
+render(<Timer />);
+```
+
+Our most common use of useEffect is an anti-pattern: synchronizing state fields with other state fields.
