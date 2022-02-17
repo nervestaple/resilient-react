@@ -89,14 +89,14 @@ It's a simple, familiar situation. We need to display a list of notes.
 Those notes originate from an API. Fetching that data is a 'side effect', so we do it inside
 `useEffect`.
 
-Whoever wrote this probably said:
+Whoever wrote this probably thought:
 _"Fetching data should be done on mount, so the useEffect dependency array should be `[]`.
 The linter complains about this, so we just need to tell it to shut up."_
 
 ### Opening your third eye: thinking beyond "render ordering"
 
 Unfortunately, thinking about 'when we're mounted' and 'which render we're on' has already trapped us in the wrong mental model.
-A better mental model is treating renders as fully independent calls of the component function, unrelated to 'mounting'.
+A better mental model is treating renders as fully independent calls of the component function, unrelated to 'mounting' or other lifecycle events.
 Each render has data (from state and props) that's in scope, that you transform and use to generate a render result.
 There were (probably) renders before this one, and there will (probably) be renders after.
 The best part -- it doesn't really matter as long as we generally treat renders as independent, repeatable events that can happen at any time.
@@ -109,7 +109,7 @@ Ensuring effects run -- whenever necessary and with current versions of their de
 
 ### When dependencies change but effects aren't run
 
-Let's return to the above example. imagine somewhere else in the app, changes `apiKey` from a test key to a production key.
+Let's return to the above example. Imagine somewhere else in the app, a dropdown is changed -- `apiKey` is switched from a test key to a production key.
 Already, our assumption that 'this needs to run once, on mount' has been broken. Our component will not _react_ to this change.
 
 Additionally, our `eslint-ignore` statement is also hurting any future developers who work on this code --
