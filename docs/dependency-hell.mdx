@@ -179,7 +179,7 @@ render(
 );
 ```
 
-It obviously doesn't work. When `isImportant` changes, the effect is not re-run, and the data is stale.
+It obviously doesn't work. When `onlyImportant` changes, the effect is not re-run, and the data is stale.
 _(of course, we could also just filter this on the client side with so little data.
 imagine we're fetching a long list of data that needs to be filtered on the server)_
 
