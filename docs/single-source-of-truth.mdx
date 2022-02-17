@@ -14,7 +14,7 @@ _(note: this doesn't mean you're not allowed to store 'working copies' of user-e
 ## Minimally represented?
 
 > "Take all the data needed to render this application.
-> What is the least amount of state we can use to represent this data?"
+> What is the minimal amount of state we can use to represent this data?"
 
 This doesn't necessarily mean we need to just mindlessly combine state fields into compound objects (though often that's the right choice).
 Primarily, the goal is to identify and eliminate situations where data stored in state essentially duplicates data stored in other state, even if in a transformed form.
@@ -91,7 +91,7 @@ function TextTransformer() {
 render(<TextTransformer />);
 ```
 
-The bug is a bit contrived (forgetting to resetting `capitalizedText` in the reset button), but it represents a real threat to our code.
+The bug is a bit contrived (forgetting to resetting `capitalizedText` in the reset button), but it represents a real, continuing threat to our code.
 Once data becomes duplicated in this way, it becomes much harder to keep track of all the ways we need to change it.
 
 ## Looking at Two Fixes: Bad and Worse
@@ -116,8 +116,8 @@ we still have to keep track and synchronize these two state fields.
 
 ### WORSE:
 
-But, with long components and complex webs of state and business logic,
-it can feel easy to reach `useEffect` as a way to "cut through the BS":
+With long components and complex webs of state and business logic,
+it can feel easy to reach for `useEffect` as a way to ensure `text` and `capitalizedText` are synchronized:
 
 ```jsx live
 function TextTransformer() {
@@ -155,7 +155,7 @@ function TextTransformer() {
 render(<TextTransformer />);
 ```
 
-This also fixes it, but at the cost of extra renders -- and, more importantly,
+This also fixes the bug, but at the cost of extra renders -- and, more importantly,
 adding unpredictable side-effects to changing state. In this example, it becomes much more difficult to reason about
 exactly what the state of `text` and `capitalizedText` is during each render. Now -- imagine 10 more state fields,
 each with their own `useEffects` synchronizing them to each other.
@@ -163,13 +163,13 @@ each with their own `useEffects` synchronizing them to each other.
 ### BEST!
 
 Hopefully I've demonstrated that 'working' code is not necessarily correct or advisable.
-The 'code smell' present in the previous example -- of `setState` inside `useEffect` --
+Focusing on eliminating the 'code smell' present in the previous example (`setState` inside `useEffect`)
 can lead us in the direction of optimal code.
 
 Let's ask, for real:
 
 > "Take all the data needed to render this application.
-> What is the least amount of state we can use to represent this data?"
+> What is the minimal amount of state we can use to represent this data?"
 
 The main realization necessary is that `capitalizedText` is just duplicated state.
 In every render, it can be entirely derived from the current state of `text`.

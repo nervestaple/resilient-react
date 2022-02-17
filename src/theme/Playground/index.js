@@ -7,7 +7,6 @@
 
 import * as React from "react";
 import { LiveProvider, LiveEditor, LiveError, LivePreview } from "react-live";
-import useDocusaurusContext from "@docusaurus/useDocusaurusContext";
 import BrowserOnly from "@docusaurus/BrowserOnly";
 import { usePrismTheme } from "@docusaurus/theme-common";
 import styles from "./styles.module.css";
@@ -49,23 +48,42 @@ function ThemedLiveEditor() {
   );
 }
 
-export default function Playground({ children, transformCode, ...props }) {
-  const {
-    siteConfig: {
-      themeConfig: {
-        liveCodeBlock: { playgroundPosition },
-      },
-    },
-  } = useDocusaurusContext();
+function ComponentWithRefresh({ children }) {
+  const [mounted, setMounted] = React.useState(true);
+
+  return (
+    <div>
+      <div style={{ padding: 10 }}>
+        <button
+          onClick={() => {
+            setMounted(false);
+            setTimeout(() => setMounted(true), 200);
+          }}
+        >
+          Refresh
+        </button>
+        <hr />
+      </div>
+      {mounted && <div>{children}</div>}
+    </div>
+  );
+}
+
+export default function Playground({
+  children,
+  transformCode,
+  scope,
+  ...props
+}) {
   const prismTheme = usePrismTheme();
-  // prismTheme.plain.fontSize = 13;
   return (
     <div className={styles.playgroundContainer}>
       <LiveProvider
         code={children.replace(/\n$/, "")}
-        transformCode={transformCode || ((code) => `${code};`)}
+        transformCode={transformCode || ((code) => `${code}`)}
         theme={prismTheme}
         noInline={true}
+        scope={{ ...scope, ComponentWithRefresh }}
         {...props}
       >
         <ThemedLiveEditor />
