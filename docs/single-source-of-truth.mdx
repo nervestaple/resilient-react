@@ -6,12 +6,17 @@ sidebar_position: 2
 
 If an app contains data, that data should be _minimally represented_.
 
+Put another way, every 'unique' piece of data should have exactly one place it's stored and updated.
+All downstream uses of that data should be passed down, transformed into derived values, but never duplicated in another state field.
+
+_(note: this doesn't mean you're not allowed to store 'working copies' of user-editable data in state fields)_
+
 ## Minimally represented?
 
 > "Take all the data needed to render this application.
 > What is the least amount of state we can use to represent this data?"
 
-Note -- this doesn't necessarily mean we need to just mindlessly combine state fields into compound objects (though often that's the right choice).
+This doesn't necessarily mean we need to just mindlessly combine state fields into compound objects (though often that's the right choice).
 Primarily, the goal is to identify and eliminate situations where data stored in state essentially duplicates data stored in other state, even if in a transformed form.
 
 Consider this example:

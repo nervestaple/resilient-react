@@ -82,7 +82,7 @@ render(<Sum />);
 
 ### What about side effects?
 
-The primary purpose of useEffect is to manage 'side effects':
+The primary purpose of `useEffect` is to manage 'side effects':
 
 - Fetching data from an API
 - Managing asynchronous tasks (`setTimeout`, `setInterval`)
@@ -106,4 +106,7 @@ function Timer() {
 render(<Timer />);
 ```
 
-However, our most common use of useEffect is an **anti-pattern**: synchronizing state fields with other state fields.
+Any use of `useEffect` that doesn't fit into one of these categories should be considered a
+'code smell' and subject to a high level of scrutiny during code review!
+Unfortunately, our most common use of useEffect is one of these **anti-patterns**:
+synchronizing state fields with other state fields.
