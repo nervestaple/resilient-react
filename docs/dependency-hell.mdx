@@ -19,8 +19,8 @@ useEffect(() => {
 ```jsx
 useEffect(() => {
   doSomethingWith(thingA, thingB);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
 }, [thingA]);
-// eslint-disable-next-line react-hooks/exhaustive-deps
 ```
 
 ```jsx
