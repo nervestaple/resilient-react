@@ -32,12 +32,6 @@
     var(--ifm-font-family-monospace) !important;
   /* rtl:ignore */
   direction: ltr;
-
-  width: 65%;
-  max-width: 65%;
-
-  height: 100%;
-  max-height: 100%;
 }
 
 .playgroundPreview {

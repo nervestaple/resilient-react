@@ -35,23 +35,6 @@ useEffect(() => {
 Ok, ok. Imagine we're fetching data from an API:
 
 ```jsx live
-async function mockFetchNotes(apiKey) {
-  return new Promise((resolve) =>
-    setTimeout(
-      () =>
-        resolve([
-          { id: 1, text: "buy shoes" },
-          { id: 2, text: "eat food" },
-        ]),
-      500
-    )
-  );
-}
-
-function useFakeContext() {
-  return "api-key";
-}
-
 function NoteList() {
   const apiKey = useFakeContext();
   const [notes, setNotes] = useState(null);
@@ -76,6 +59,23 @@ function NoteList() {
       ))}
     </ul>
   );
+}
+
+async function mockFetchNotes(apiKey) {
+  return new Promise((resolve) =>
+    setTimeout(
+      () =>
+        resolve([
+          { id: 1, text: "buy shoes" },
+          { id: 2, text: "eat food" },
+        ]),
+      500
+    )
+  );
+}
+
+function useFakeContext() {
+  return "api-key";
 }
 
 render(
@@ -117,27 +117,6 @@ Additionally, our `eslint-ignore` statement is also hurting any future developer
 preventing them from being notified if they extend this code and add more implicit dependencies!
 
 ```jsx live
-const apiData = [
-  { id: 1, text: "buy shoes" },
-  { id: 2, text: "eat food", isImportant: true },
-];
-
-async function mockFetchNotes(apiKey, onlyImportant) {
-  return new Promise((resolve) =>
-    setTimeout(() => {
-      if (onlyImportant) {
-        resolve(apiData.filter((n) => n.isImportant));
-      } else {
-        resolve(apiData);
-      }
-    }, 500)
-  );
-}
-
-function useFakeContext() {
-  return "api-key";
-}
-
 function NoteList() {
   const apiKey = useFakeContext();
   const [notes, setNotes] = useState(null);
@@ -171,6 +150,27 @@ function NoteList() {
       </div>
     </>
   );
+}
+
+const apiData = [
+  { id: 1, text: "buy shoes" },
+  { id: 2, text: "eat food", isImportant: true },
+];
+
+async function mockFetchNotes(apiKey, onlyImportant) {
+  return new Promise((resolve) =>
+    setTimeout(() => {
+      if (onlyImportant) {
+        resolve(apiData.filter((n) => n.isImportant));
+      } else {
+        resolve(apiData);
+      }
+    }, 500)
+  );
+}
+
+function useFakeContext() {
+  return "api-key";
 }
 
 render(

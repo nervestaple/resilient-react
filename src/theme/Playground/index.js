@@ -38,12 +38,14 @@ function ResultWithHeader() {
 function ThemedLiveEditor() {
   const isBrowser = useIsBrowser();
   return (
-    <LiveEditor
-      // We force remount the editor on hydration,
-      // otherwise dark prism theme is not applied
-      key={isBrowser}
-      className={styles.playgroundEditor}
-    />
+    <div style={{ overflowY: "auto", maxHeight: 500 }}>
+      <LiveEditor
+        // We force remount the editor on hydration,
+        // otherwise dark prism theme is not applied
+        key={isBrowser}
+        className={styles.playgroundEditor}
+      />
+    </div>
   );
 }
 

@@ -54,11 +54,6 @@ State complicates this, but not by much.
 Props and state are still just values that can be used to render a result!
 
 ```jsx live
-function getIntFromEvent(e) {
-  const num = parseInt(e.target.value);
-  return Number.isInteger(num) ? num : null;
-}
-
 function Sum() {
   const [a, setA] = useState(1);
   const [b, setB] = useState(2);
@@ -75,6 +70,11 @@ function Sum() {
       </div>
     </div>
   );
+}
+
+function getIntFromEvent(e) {
+  const num = parseInt(e.target.value);
+  return Number.isInteger(num) ? num : null;
 }
 
 render(<Sum />);
