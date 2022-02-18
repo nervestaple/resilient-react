@@ -43,7 +43,6 @@ function ThemedLiveEditor() {
       // otherwise dark prism theme is not applied
       key={isBrowser}
       className={styles.playgroundEditor}
-      style={{}}
     />
   );
 }

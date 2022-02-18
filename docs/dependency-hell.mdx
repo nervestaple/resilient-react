@@ -97,12 +97,13 @@ The linter complains about this, so we just need to tell it to shut up."_
 
 Unfortunately, thinking about 'when we're mounted' and 'which render we're on' has already trapped us in the wrong mental model.
 A better mental model is treating renders as fully independent calls of the component function, unrelated to 'mounting' or other lifecycle events.
-Each render has data (from state and props) that's in scope, that you transform and use to generate a render result.
+
+Each render call has data (state and props) that's present in scope, with certain values at the time it's called. That data is then transformed to generate a render result.
 There were (probably) renders before this one, and there will (probably) be renders after.
-The best part -- it doesn't really matter as long as we generally treat renders as independent, repeatable events that can happen at any time.
+The best part of this model -- it greatly simplifies the number of things we have to think about as long as we generally treat renders as independent, repeatable events that can occur at any time.
 
 In general, React always runs effects after each render, then optimizes by skipping certain effects if it deems it necessary.
-In fact, in "StrictMode", React intentionally runs all effects twice!
+In fact, in `StrictMode`, React intentionally runs all effects twice!
 If your effects can't safely be run twice, your code will be brittle!
 
 Ensuring effects run -- whenever necessary and with current versions of their dependent data -- is _much more_ important than trying to control _how often_ effects will run.
