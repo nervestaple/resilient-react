@@ -226,12 +226,6 @@ The user usually wants to modify this state, then re-persist the modified versio
 Developers supplying and synchronizing the initial state for forms are often sources of the improper use of `useEffect`.
 
 In the example below, we wrap the form we've been building in the previous examples with a component that fetches the form's initial data from the API.
-A less-known feature of the 'key' prop (outside of element arrays) is to completely reset a component.
-By keying our form on a unique ID identifying the state that 'hydrates' our form,
-we don't need to do _any_ synchronization work to actively reset the form. It just works!
-
-As an alternative to the approach using `key`, we could 'lift up' the `formState` field into this component,
-and copy `userData` into it alongside the `setUserData` call.
 
 ```jsx live
 function FormContainer() {
@@ -270,3 +264,10 @@ render(
   </SubmitProvider>
 );
 ```
+
+A less-known feature of the 'key' prop (outside of element arrays) is to completely reset a component.
+By keying our form on a unique ID identifying the state that 'hydrates' our form,
+we don't need to do _any_ synchronization work to actively reset the form. It just works!
+
+As an alternative to the approach using `key`, we could 'lift up' the `formState` field into this component,
+and copy `userData` into it alongside the `setUserData` call.
