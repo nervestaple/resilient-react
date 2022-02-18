@@ -62,6 +62,8 @@ render(
 );
 ```
 
+## Unify form state
+
 In the previous example, there are two pieces of state: `name` and `age`.
 However -- they're both going to end up being submitted as part of the same 'blob' to the API.
 There's generally not a compelling reason to keep them in separate state fields.
@@ -77,6 +79,10 @@ The only 'contract' every child needs to adhere to is:
 
 1. receive a `value` prop that contains the formState
 2. receive an `onChange` prop that receives updates
+
+Or something similar.
+
+## Complex multi-component forms
 
 In the following example, we add additional fields split across several tabs.
 There's more code, but not really any additional complexity.
@@ -211,6 +217,8 @@ render(
   </SubmitProvider>
 );
 ```
+
+## Initial form state
 
 In many cases, forms get their initial state from an API.
 The user usually wants to modify this state, then re-persist the modified version.
