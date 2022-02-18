@@ -23,8 +23,8 @@ A set of practical guidelines for building React apps such that they're maximall
 A "code smell" is a simple hint that strongly indicates at an issue in your code.
 I'll try to address _why_ these are code smells, and what alternatives to consider, later in this doc.
 
-1. useEffect being used to set state
-   1. this might be the most controversial (but also the most important), as code doing exactly this forms a large proportion of our Configurations code
+1. useEffect being used to set state _(excluding API requests)_
+   1. this might be the most controversial (but also the most important), as code doing exactly this forms a large proportion of our code
 1. Ignored dependencies in hooks (most often useEffect)
 1. Refs used to get around ignored dependencies
 1. Comments referencing the lifecycle of the component, like: `// this should just be called once on mount!`

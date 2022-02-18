@@ -202,6 +202,8 @@ function TextTransformer() {
 render(<TextTransformer />);
 ```
 
+## Avoid "Derived State"
+
 The solution for 'derived state' -- state that can be entirely derived from other available data --
 is `const`! Just assign a variable that's calculated on every render. In this simple example, we could even have just
 put `text.toUpperCase()` inline in the JSX.

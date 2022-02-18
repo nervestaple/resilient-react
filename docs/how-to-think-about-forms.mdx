@@ -4,4 +4,261 @@ sidebar_position: 4
 
 # How To Think About Forms
 
-TODO
+## What is a form?
+
+A set of related user inputs that are meant to be persisted together.
+
+Most app code (or at least, the most complicated portions of app code) is forms!
+
+```jsx live
+function UserForm() {
+  const [formState, setFormState] = useState({ name: null, age: null });
+  const [submitState, setSubmitState] = useState("initial");
+
+  const apiSubmit = useSubmit(); // mocked function for this demo
+  async function handleSubmit(e) {
+    e.preventDefault();
+
+    setSubmitState("loading");
+    await apiSubmit(formState);
+    setSubmitState("success");
+  }
+
+  function handleChange(update) {
+    setFormState((oldFormState) => ({ ...oldFormState, ...update }));
+  }
+
+  return (
+    <form onSubmit={handleSubmit}>
+      <span style={{ color: "gray", fontStyle: "italic" }}>
+        {submitState === "loading" && "sending..."}
+        {submitState === "success" && "submitted!"}
+      </span>
+      <div>
+        Name:{" "}
+        <input
+          type="text"
+          value={formState.name}
+          onChange={(e) => handleChange({ name: e.target.value })}
+        />
+      </div>
+      <div>
+        Age:{" "}
+        <input
+          type="number"
+          value={formState.age}
+          onChange={(e) => handleChange({ age: e.target.value })}
+        />
+      </div>
+      <button type="submit">Submit</button>
+    </form>
+  );
+}
+
+render(
+  <SubmitProvider>
+    <UserForm />
+  </SubmitProvider>
+);
+```
+
+In the previous example, there are two pieces of state: `name` and `age`.
+However -- they're both going to end up being submitted as part of the same 'blob' to the API.
+There's generally not a compelling reason to keep them in separate state fields.
+Why not just maintain them in their desired structure at all times?
+
+Our form state is centralized, and only has one root function that all changes are passed through (`onChange`).
+It's not critical that form onChange functions use the pattern above -- where updates are merged in -- but it makes things pretty easy!
+
+One might say "well, we have so many inputs, and our form logic is so complicated -- there's no way it could fit into this model!"
+
+One would be wrong! There's nothing keeping you from splitting your form across many deeply-nested subcomponents.
+The only 'contract' every child needs to adhere to is:
+
+1. receive a `value` prop that contains the formState
+2. receive an `onChange` prop that receives updates
+
+In the following example, we add additional fields split across several tabs.
+There's more code, but not really any additional complexity.
+We don't need to keep re-inventing ways to store and change data.
+
+Additionally, we give `<UserForm />` a `userData={}` prop that will be used later.
+
+```jsx live
+const steps = [Step1, Step2, Step3];
+function UserForm({ userData }) {
+  const [tab, setTab] = useState(0);
+
+  const [formState, setFormState] = React.useState(
+    userData || {
+      name: null,
+      age: null,
+      favoriteColor: null,
+      isHungry: false,
+      isThirsty: false,
+    }
+  );
+
+  function handleChange(update) {
+    setFormState((oldFormState) => ({ ...oldFormState, ...update }));
+  }
+
+  const apiSubmit = useSubmit(); // mocked function for this demo
+  async function handleSubmit(e) {
+    e.preventDefault();
+    await apiSubmit(formState);
+  }
+
+  const Step = steps[tab];
+  return (
+    <form onSubmit={handleSubmit}>
+      <div>
+        {steps.map((s, i) => (
+          <button
+            type="button"
+            onClick={() => setTab(i)}
+            style={{
+              margin: 2,
+              backgroundColor: i === tab ? "white" : "lightgray",
+              fontWeight: i === tab ? "bold" : null,
+            }}
+          >
+            {i + 1}
+          </button>
+        ))}
+        <div>
+          <button type="submit">Submit</button>
+        </div>
+      </div>
+      <hr />
+      <Step value={formState} onChange={handleChange} />
+    </form>
+  );
+}
+
+function Step1({ value, onChange }) {
+  return (
+    <div>
+      <div>
+        Name:{" "}
+        <input
+          type="text"
+          value={value.name}
+          onChange={(e) => onChange({ name: e.target.value })}
+        />
+      </div>
+      <div>
+        Age:{" "}
+        <input
+          type="number"
+          value={value.age}
+          onChange={(e) => onChange({ name: e.target.age })}
+        />
+      </div>
+    </div>
+  );
+}
+
+function Step2({ value, onChange }) {
+  return (
+    <div>
+      <div>
+        Favorite Color:{" "}
+        <input
+          type="text"
+          value={value.favoriteColor}
+          onChange={(e) => onChange({ favoriteColor: e.target.value })}
+        />
+        <div
+          style={{
+            width: 100,
+            height: 100,
+            backgroundColor: value.favoriteColor,
+            margin: 4,
+          }}
+        />
+      </div>
+    </div>
+  );
+}
+
+function Step3({ value, onChange }) {
+  return (
+    <div>
+      <div>
+        Are you hungry?{" "}
+        <input
+          type="checkbox"
+          checked={value.isHungry}
+          onChange={(e) => onChange({ isHungry: e.target.checked })}
+        />
+      </div>
+      <div>
+        Are you thirsty?{" "}
+        <input
+          type="checkbox"
+          checked={value.isThirsty}
+          onChange={(e) => onChange({ isThirsty: e.target.checked })}
+        />
+      </div>
+    </div>
+  );
+}
+
+render(
+  <SubmitProvider>
+    <UserForm />
+  </SubmitProvider>
+);
+```
+
+In many cases, forms get their initial state from an API.
+The user usually wants to modify this state, then re-persist the modified version.
+
+Developers supplying and synchronizing the initial state for forms are often sources of the improper use of `useEffect`.
+
+In the example below, we wrap the form we've been building in the previous examples with a component that fetches the form's initial data from the API.
+A less-known feature of the 'key' prop (outside of element arrays) is to completely reset a component.
+By keying our form on a unique ID identifying the state that 'hydrates' our form,
+we don't need to do _any_ synchronization work to actively reset the form. It just works!
+
+As an alternative to the approach using `key`, we could 'lift up' the `formState` field into this component,
+and copy `userData` into it alongside the `setUserData` call.
+
+```jsx live
+function FormContainer() {
+  const [userData, setUserData] = useState(null);
+  const [userId, setUserId] = useState(1);
+  useEffect(() => {
+    async function fetchUserData() {
+      const data = await apiFetchUserDataById(userId); // mocked
+      setUserData(data);
+    }
+    fetchUserData();
+  }, [userId]);
+
+  return (
+    <div>
+      <h3>User Form for User ID: {userId}</h3>
+      <div onChange={(e) => setUserId(parseInt(e.target.value))}>
+        <input type="radio" value={1} name="userId" checked={userId === 1} />{" "}
+        UserID 1
+        <input
+          type="radio"
+          value={2}
+          name="userId"
+          checked={userId === 2}
+        /> UserID 2
+      </div>
+      <hr />
+      <UserForm key={userData ? userData.id : null} userData={userData} />
+    </div>
+  );
+}
+
+render(
+  <SubmitProvider>
+    <FormContainer />
+  </SubmitProvider>
+);
+```
