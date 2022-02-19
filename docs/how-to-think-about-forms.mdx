@@ -266,7 +266,8 @@ render(
 ```
 
 A less-known feature of the 'key' prop (outside of element arrays) is to completely reset a component.
-By keying our form on a unique ID identifying the state that 'hydrates' our form,
+When React detects that the key of a component has changed, it's unmounted and remounted.
+By keying our form on a unique ID identifying whatever state is 'hydrating' our form,
 we don't need to do _any_ synchronization work to actively reset the form. It just works!
 
 As an alternative to the approach using `key`, we could 'lift up' the `formState` field into this component,
